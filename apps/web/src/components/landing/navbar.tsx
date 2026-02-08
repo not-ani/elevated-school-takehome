@@ -33,7 +33,7 @@ export function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.avif"
+              src="/elevated-logo.svg"
               alt="ElevatEd Logo"
               className="h-10 w-auto"
               width={40}

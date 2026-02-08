@@ -16,10 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "elevated-school",
-  description: "elevated-school",
+  title: "Elevated School",
+  description: "Elevated School",
   icons: {
-    icon: "/logo.avif",
+    icon: "/elevated-logo.svg",
   },
 };
 
