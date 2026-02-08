@@ -24,15 +24,21 @@ export function ChartCard({
         className,
       )}
     >
-      <CardHeader className="bg-card sticky top-0 z-10 flex items-start justify-between gap-4 rounded-t-xl border-b">
-        <CardTitle className="font-semibold tracking-tight">{title}</CardTitle>
+      <CardHeader className="sticky top-0 z-10 flex w-full items-center justify-between gap-4 rounded-t-xl border-b">
+        <div className="flex flex-col gap-1">
+          <CardTitle className="font-semibold tracking-tight">
+            {title}
+          </CardTitle>
 
-        {description && (
-          <p className="text-muted-foreground text-xs">{description}</p>
-        )}
+          {description && (
+            <p className="text-muted-foreground text-xs">{description}</p>
+          )}
+        </div>
         {action}
       </CardHeader>
-      <CardContent className={cn("flex-1 overflow-y-auto", contentClassName)}>
+      <CardContent
+        className={cn("w-full flex-1 overflow-y-auto", contentClassName)}
+      >
         {children}
       </CardContent>
     </Card>
@@ -78,7 +84,7 @@ export function FeaturedChartCard({
         </div>
         {action}
       </div>
-      <div className="px-2 pb-4">{children}</div>
+      <div className="">{children}</div>
     </div>
   );
 }

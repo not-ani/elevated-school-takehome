@@ -14,6 +14,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { ImagePreview } from "@/components/image-preview";
 
 export type PythonAnalysisOutput = {
   summary?: string;
@@ -93,12 +94,10 @@ export function PythonCodeBlock({
           </p>
           <div className="grid gap-2 md:grid-cols-2">
             {charts.map((chart, index) => (
-              <a
+              <ImagePreview
                 key={`${chart.slice(0, 24)}-${index}`}
-                href={chart}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:border-primary/50 overflow-hidden rounded-md border transition-colors"
+                src={chart}
+                alt={`Generated chart ${index + 1}`}
               >
                 <Image
                   src={chart}
@@ -108,7 +107,7 @@ export function PythonCodeBlock({
                   unoptimized
                   className="h-auto w-full bg-white"
                 />
-              </a>
+              </ImagePreview>
             ))}
           </div>
         </div>

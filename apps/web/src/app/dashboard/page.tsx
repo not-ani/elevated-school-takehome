@@ -170,7 +170,7 @@ export default function OverviewPage() {
             </Link>
           }
         >
-          <div className="h-[340px]">
+          <div className="h-[430px] w-full">
             <ChartContainer
               config={{
                 revenue: { label: "Revenue", color: "var(--chart-1)" },
