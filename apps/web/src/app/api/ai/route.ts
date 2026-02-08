@@ -6,7 +6,10 @@ import { getConvexUrl } from "@/lib/ai/env";
 import { buildCompanionSystemPrompt } from "@/lib/ai/companion-system-prompt";
 import { api } from "@elevated-school/backend/convex/_generated/api";
 import { buildContextMessages } from "@/lib/ai/context-builder";
-import { persistUserMessage, persistAssistantMessage } from "@/lib/ai/persistence";
+import {
+  persistUserMessage,
+  persistAssistantMessage,
+} from "@/lib/ai/persistence";
 import {
   normalizeFilters,
   normalizePage,
@@ -89,7 +92,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("AI route error:", error);
-    return NextResponse.json({ error: "Failed to process AI request." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to process AI request." },
+      { status: 500 },
+    );
   }
 }
-

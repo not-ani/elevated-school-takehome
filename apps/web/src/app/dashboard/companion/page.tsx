@@ -7,7 +7,7 @@ import { CompanionChat } from "@/components/dashboard/companion-chat";
 import { useCompanion } from "@/components/dashboard/companion-context";
 import { CompanionThreadSidebar } from "@/components/dashboard/companion-thread-sidebar";
 
-export default function CompanionPage() {
+function CompanionPageContent() {
   const { filters } = useDashboard();
   const [threadId, setThreadId] = useQueryState("threadId", parseAsString);
   const {
@@ -53,7 +53,7 @@ export default function CompanionPage() {
   }, [setThreadId, startNewThread]);
 
   return (
-    <div className="mx-auto h-[calc(100vh-8rem)] max-w-7xl overflow-hidden rounded-xl border bg-card">
+    <div className="bg-card mx-auto h-[calc(100vh-8rem)] max-w-7xl overflow-hidden rounded-xl border">
       <div className="grid h-full min-h-0 grid-rows-[220px_1fr] md:grid-cols-[290px_1fr] md:grid-rows-1">
         <CompanionThreadSidebar
           activeThreadId={activeThreadId}
@@ -70,5 +70,13 @@ export default function CompanionPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function CompanionPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <CompanionPageContent />
+    </React.Suspense>
   );
 }
