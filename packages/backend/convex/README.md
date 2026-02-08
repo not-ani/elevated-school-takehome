@@ -4,6 +4,8 @@ Convex functions and schema for the backend database and API.
 
 ## Structure
 
+To ensure maintainability our backend is organized like this
+
 ```
 convex/
 ├── schema.ts                  # Database schema definitions
@@ -32,12 +34,14 @@ convex/
 ## Schema (`schema.ts`)
 
 Centralized database schema defining all tables:
+
 - Table definitions with field types
 - Indexes for query optimization
 - Validation rules
 - Type-safe schema
 
 **Key Tables:**
+
 - `messages`: Chat messages
 - `threads`: Conversation threads
 - `essays`: Essay content
@@ -49,46 +53,61 @@ Centralized database schema defining all tables:
 Dashboard functions are organized by feature area:
 
 ### `dashboard.ts`
+
 Main dashboard entry point and shared queries.
 
 ### `dashboardOverview.ts`
+
 Overview page queries:
+
 - High-level metrics
 - KPIs
 - Summary statistics
 
 ### `dashboardCustomers.ts`
+
 Customer management:
+
 - Customer list queries
 - Customer details
 - Customer analytics
 
 ### `dashboardQuality.ts`
+
 Quality metrics:
+
 - Quality scores
 - Quality trends
 - Quality analysis
 
 ### `dashboardOperations.ts`
+
 Operations data:
+
 - Operational metrics
 - Workflow data
 - Process information
 
 ### `dashboardRevenue.ts`
+
 Revenue analytics:
+
 - Revenue queries
 - Revenue trends
 - Financial metrics
 
 ### `dashboardFilters.ts`
+
 Filter utilities:
+
 - Filter validation
 - Filter normalization
 - Common filter logic
 
 ### `dashboardShared.ts`
+
 Shared dashboard utilities:
+
 - Common query patterns
 - Shared data transformations
 - Reusable helpers
@@ -96,14 +115,18 @@ Shared dashboard utilities:
 ## Message & Thread Management
 
 ### `messages.ts`
+
 Message persistence:
+
 - Save user messages
 - Save assistant messages
 - Retrieve conversation history
 - Message queries
 
 ### `threads.ts`
+
 Thread management:
+
 - Create threads
 - Get thread by ID
 - List threads
@@ -112,19 +135,25 @@ Thread management:
 ## Essay Management
 
 ### `essays.ts`
+
 Essay content queries:
+
 - Get essay by ID
 - List essays
 - Essay metadata
 
 ### `essayRequests.ts`
+
 Essay request queries:
+
 - Request status
 - Request history
 - Request details
 
 ### `essayRequestsActions.ts`
+
 Essay request actions:
+
 - Create requests
 - Update request status
 - Process requests
@@ -132,7 +161,9 @@ Essay request actions:
 ## Function Types
 
 ### Queries
+
 Read-only functions that query the database:
+
 ```ts
 export const getDashboardOverview = query({
   args: { filters: v.object({...}) },
@@ -144,7 +175,9 @@ export const getDashboardOverview = query({
 ```
 
 ### Mutations
+
 Functions that modify the database:
+
 ```ts
 export const createThread = mutation({
   args: { title: v.string() },
@@ -156,7 +189,9 @@ export const createThread = mutation({
 ```
 
 ### Actions
+
 Functions that can call external APIs or perform side effects:
+
 ```ts
 export const processEssayRequest = action({
   args: { requestId: v.id("essayRequests") },
@@ -170,6 +205,7 @@ export const processEssayRequest = action({
 ## Usage in Frontend
 
 ### Queries
+
 ```tsx
 import { useQuery } from "convex/react";
 import { api } from "@elevated-school/backend/convex/_generated/api";
@@ -183,12 +219,13 @@ function Dashboard() {
 ```
 
 ### Mutations
+
 ```tsx
 import { useMutation } from "convex/react";
 
 function Component() {
   const createThread = useMutation(api.threads.create);
-  
+
   const handleCreate = () => {
     createThread({ title: "New Thread" });
   };
@@ -198,6 +235,7 @@ function Component() {
 ## Type Safety
 
 All functions are fully typed:
+
 - Argument validation with `v.*` validators
 - Return types inferred
 - Auto-generated API types
@@ -215,6 +253,7 @@ All functions are fully typed:
 ## Migrations
 
 Database schema changes handled via `migrations.ts`:
+
 - Version tracking
 - Schema updates
 - Data transformations
@@ -236,6 +275,7 @@ npx convex dashboard
 ## Environment
 
 Convex configuration in `convex.config.ts`:
+
 - Deployment settings
 - Environment variables
 - Function configuration
