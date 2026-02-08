@@ -27,14 +27,17 @@ export default function Home() {
             <Card className="group-hover:border-primary transition-all duration-300 group-hover:shadow-lg">
               <CardContent className="flex flex-row items-center justify-between">
                 <CardTitle className="group-hover:text-primary text-2xl transition-colors duration-300">
-                  Redesigned Landing Page + Custom Editor Flow
+                  Redesigned Landing Page
                 </CardTitle>
 
                 <ChevronRight className="group-hover:text-primary transition-all duration-300 group-hover:translate-x-1" />
               </CardContent>
             </Card>
           </Link>
-          <Link href="/technical-report" className="group block">
+          <a
+            href="https://github.com/not-ani/elevated-school-takehome/blob/main/apps/web/TECHNICAL_REPORT.md"
+            className="group block"
+          >
             <Card className="group-hover:border-primary transition-all duration-300 group-hover:shadow-lg">
               <CardContent className="flex flex-row items-center justify-between">
                 <CardTitle className="group-hover:text-primary text-2xl transition-colors duration-300">
@@ -44,7 +47,7 @@ export default function Home() {
                 <ChevronRight className="group-hover:text-primary transition-all duration-300 group-hover:translate-x-1" />
               </CardContent>
             </Card>
-          </Link>
+          </a>
         </section>
       </div>
     </div>
