@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LucideIcon } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
 import {
   Clock,
   DollarSign,
@@ -23,6 +23,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { coordinatesUrlKeys } from "@/components/dashboard/filters/server";
 import type { Route } from "next";
 
 const analyticsItems: {
@@ -40,8 +41,25 @@ const analyticsItems: {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isActive = (href: string) =>
     pathname === href || pathname === `${href}/`;
+
+  const buildDashboardHref = (href: Route) => {
+    const query: Record<string, string> = {};
+
+    for (const key of Object.values(coordinatesUrlKeys)) {
+      const value = searchParams.get(key);
+      if (value) {
+        query[key] = value;
+      }
+    }
+
+    return {
+      pathname: href,
+      query,
+    };
+  };
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -66,7 +84,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems.map((item) => (
-                <Link href={item.href} key={item.href}>
+                <Link href={buildDashboardHref(item.href)} key={item.href}>
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       isActive={isActive(item.href)}

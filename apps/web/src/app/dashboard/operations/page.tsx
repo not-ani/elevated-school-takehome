@@ -65,6 +65,30 @@ export default function OperationsPage() {
 
   if (!data) return <DashboardPageSkeleton />;
 
+  const statusLookup = new Map(
+    data.breakdowns.byStatus.map((entry) => [
+      entry.label.toLowerCase(),
+      entry.value,
+    ]),
+  );
+  const statusBreakdownData = [
+    {
+      label: "Completed",
+      value: statusLookup.get("completed") ?? 0,
+      fill: "var(--chart-2)",
+    },
+    {
+      label: "Assigned",
+      value: statusLookup.get("assigned") ?? 0,
+      fill: "var(--chart-3)",
+    },
+    {
+      label: "Unassigned",
+      value: statusLookup.get("unassigned") ?? 0,
+      fill: "var(--chart-5)",
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       {/* Hero KPIs */}
@@ -129,11 +153,11 @@ export default function OperationsPage() {
                 </RadialBarChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="-mt-4 text-center">
+                <div className="text-center">
                   <span className="text-3xl font-bold">
                     {data.kpis.onTimeRate.toFixed(1)}%
                   </span>
-                  <p className="text-muted-foreground text-xs">On-Time</p>
+                  <p className="text-muted-foreground mt-1 text-xs">On-Time</p>
                 </div>
               </div>
             </div>
@@ -163,27 +187,25 @@ export default function OperationsPage() {
               className="h-full w-full"
             >
               <BarChart
-                data={data.breakdowns.byStatus}
-                layout="vertical"
-                margin={{ top: 10, right: 10, left: 80, bottom: 0 }}
+                data={statusBreakdownData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  horizontal={false}
+                  vertical={false}
                   stroke="var(--border)"
                 />
                 <XAxis
-                  type="number"
+                  dataKey="label"
                   tickLine={false}
                   axisLine={false}
                   tick={{ fontSize: 11 }}
                 />
                 <YAxis
-                  type="category"
-                  dataKey="label"
                   tickLine={false}
                   axisLine={false}
                   tick={{ fontSize: 11 }}
+                  allowDecimals={false}
                 />
                 <ChartTooltip
                   content={
@@ -204,13 +226,10 @@ export default function OperationsPage() {
                 <Bar
                   dataKey="value"
                   fill="var(--color-value)"
-                  radius={[0, 4, 4, 0]}
+                  radius={[4, 4, 0, 0]}
                 >
-                  {data.breakdowns.byStatus.map((_, index) => (
-                    <Cell
-                      key={index}
-                      fill={`var(--chart-${(index % 5) + 1})`}
-                    />
+                  {statusBreakdownData.map((entry) => (
+                    <Cell key={entry.label} fill={entry.fill} />
                   ))}
                 </Bar>
               </BarChart>

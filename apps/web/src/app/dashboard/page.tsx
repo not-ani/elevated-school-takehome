@@ -97,6 +97,13 @@ export default function OverviewPage() {
     );
 
     const onTimeRate = Math.min(100, Math.max(0, data.kpis.onTimeRate));
+    const ratings = data.ratings.byDraft.map((entry) => entry.avgRating);
+    const qualityYAxisMin = ratings.length
+      ? Math.max(0, Math.floor(Math.min(...ratings)) - 1)
+      : 0;
+    const qualityYAxisMax = ratings.length
+      ? Math.min(9, Math.ceil(Math.max(...ratings)) + 1)
+      : 9;
 
     return {
       momentumSeries,
@@ -111,6 +118,8 @@ export default function OverviewPage() {
       latePreview,
       maxOverdue,
       onTimeRate,
+      qualityYAxisMin,
+      qualityYAxisMax,
     };
   }, [data]);
 
@@ -457,7 +466,11 @@ export default function OverviewPage() {
                   tickLine={false}
                   axisLine={false}
                   tick={{ fontSize: 11 }}
-                  domain={["dataMin - 0.5", "dataMax + 0.5"]}
+                  domain={[derived.qualityYAxisMin, derived.qualityYAxisMax]}
+                  allowDecimals={false}
+                  tickFormatter={(value) =>
+                    Math.round(Number(value)).toString()
+                  }
                 />
                 <ChartTooltip
                   content={
