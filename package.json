@@ -15,17 +15,22 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "check-types": "turbo check-types",
-    "dev:native": "turbo -F native dev",
-    "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F @elevated-school/backend dev",
-    "dev:setup": "turbo -F @elevated-school/backend dev:setup"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "lint": "turbo run lint",
+    "format:check": "turbo run format:check",
+    "format:write": "turbo run format:write",
+    "dev:native": "turbo run -F native dev",
+    "dev:web": "turbo run -F web dev",
+    "dev:server": "turbo run -F @elevated-school/backend dev",
+    "dev:setup": "turbo run -F @elevated-school/backend dev:setup"
   },
   "dependencies": {
     "@elevated-school/env": "workspace:*",
+    "convex-helpers": "^0.1.111",
     "dotenv": "catalog:",
+    "nuqs": "^2.8.8",
     "zod": "catalog:"
   },
   "devDependencies": {
