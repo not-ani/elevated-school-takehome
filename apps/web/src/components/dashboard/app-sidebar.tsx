@@ -38,19 +38,6 @@ const analyticsItems: {
   { title: "AI Companion", href: "/dashboard/companion", icon: Sparkles },
 ];
 
-const editorItems: {
-  title: string;
-  href: Route;
-  icon: LucideIcon;
-}[] = [
-  {
-    title: "Editor Dashboard",
-    href: "/dashboard/editor-dashboard",
-    icon: Star,
-  },
-  { title: "Essay Editor", href: "/dashboard/editor", icon: LayoutDashboard },
-];
-
 export function AppSidebar() {
   const pathname = usePathname();
   const isActive = (href: string) =>
@@ -90,25 +77,6 @@ export function AppSidebar() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </Link>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Editor</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {editorItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    render={<Link href={item.href} />}
-                    isActive={isActive(item.href)}
-                    tooltip={item.title}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

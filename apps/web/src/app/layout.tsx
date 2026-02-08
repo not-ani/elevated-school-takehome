@@ -16,10 +16,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Elevated School",
-  description: "Elevated School",
+  title: {
+    default: "Elevated - College Admissions Consulting and Writing Tutoring",
+    template: "%s | Elevated",
+  },
+  description:
+    "Elevated helps students tell the best stories of their lives, with 920+ Top 20 college acceptances & 200+ writing prizes since 2020. Schedule a free intro call today for help with college admissions and/or writing tutoring!",
   icons: {
     icon: "/elevated-logo.svg",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Elevated",
+    title: "Elevated - College Admissions Consulting and Writing Tutoring",
+    description:
+      "Elevated helps students tell the best stories of their lives, with 920+ Top 20 college acceptances & 200+ writing prizes since 2020.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Elevated - College Admissions Consulting",
+    description:
+      "920+ Top 20 college acceptances & 200+ writing prizes since 2020. Help students tell the best stories of their lives.",
   },
 };
 
