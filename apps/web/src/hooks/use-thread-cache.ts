@@ -9,13 +9,19 @@ import type { UIMessage } from "ai";
 export function useThreadCache() {
   const threadMessagesCache = React.useRef(new Map<string, UIMessage[]>());
 
-  const cacheMessages = React.useCallback((threadId: string, messages: UIMessage[]) => {
-    threadMessagesCache.current.set(threadId, messages);
-  }, []);
+  const cacheMessages = React.useCallback(
+    (threadId: string, messages: UIMessage[]) => {
+      threadMessagesCache.current.set(threadId, messages);
+    },
+    [],
+  );
 
-  const getCachedMessages = React.useCallback((threadId: string): UIMessage[] | undefined => {
-    return threadMessagesCache.current.get(threadId);
-  }, []);
+  const getCachedMessages = React.useCallback(
+    (threadId: string): UIMessage[] | undefined => {
+      return threadMessagesCache.current.get(threadId);
+    },
+    [],
+  );
 
   return {
     cacheMessages,

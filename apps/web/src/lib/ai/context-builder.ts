@@ -19,7 +19,9 @@ export async function buildContextMessages(
     return sanitizedIncoming.slice(-MAX_CONTEXT_MESSAGES);
   }
 
-  const history = await convexClient.query(api.messages.listByThread, { threadId });
+  const history = await convexClient.query(api.messages.listByThread, {
+    threadId,
+  });
   const historyMessages: UIMessage[] = history.map((message) => ({
     id: message._id,
     role: message.role,

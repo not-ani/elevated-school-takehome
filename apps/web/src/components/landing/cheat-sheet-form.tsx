@@ -30,14 +30,9 @@ export function CheatSheetForm() {
           className="mb-4 flex h-16 w-16 items-center justify-center"
           style={{ backgroundColor: COLORS.accent }}
         >
-          <Check
-            className="h-8 w-8"
-            style={{ color: COLORS.secondary }}
-          />
+          <Check className="h-8 w-8" style={{ color: COLORS.secondary }} />
         </div>
-        <h4 className="mb-2 text-lg font-bold text-white">
-          Check Your Email!
-        </h4>
+        <h4 className="mb-2 text-lg font-bold text-white">Check Your Email!</h4>
         <p className="mb-4 text-sm text-white/70">
           We&apos;ve sent the cheat sheet to your inbox
         </p>
@@ -71,9 +66,7 @@ export function CheatSheetForm() {
                   ? `${COLORS.primary}20`
                   : "transparent",
             }}
-            onClick={() =>
-              setFormData({ ...formData, userType: type })
-            }
+            onClick={() => setFormData({ ...formData, userType: type })}
           >
             <div
               className="flex h-4 w-4 items-center justify-center border transition-colors"
@@ -91,9 +84,7 @@ export function CheatSheetForm() {
                 />
               )}
             </div>
-            <span className="text-sm font-medium text-white">
-              {type}
-            </span>
+            <span className="text-sm font-medium text-white">{type}</span>
           </label>
         ))}
       </div>
@@ -101,9 +92,7 @@ export function CheatSheetForm() {
       <div className="relative">
         <select
           value={formData.grade}
-          onChange={(e) =>
-            setFormData({ ...formData, grade: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
           className="w-full appearance-none border-2 bg-transparent px-4 py-3.5 text-sm text-white transition-colors outline-none"
           style={{
             borderColor: formData.grade
@@ -111,10 +100,7 @@ export function CheatSheetForm() {
               : "rgba(255,255,255,0.2)",
           }}
         >
-          <option
-            value=""
-            className="bg-[#101D45] text-white/50"
-          >
+          <option value="" className="bg-[#101D45] text-white/50">
             Select Grade Level
           </option>
           <option value="9" className="bg-[#101D45]">
@@ -139,9 +125,7 @@ export function CheatSheetForm() {
       <input
         type="email"
         value={formData.email}
-        onChange={(e) =>
-          setFormData({ ...formData, email: e.target.value })
-        }
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         placeholder="Email address"
         className="w-full border-2 bg-transparent px-4 py-3.5 text-sm text-white transition-colors outline-none placeholder:text-white/40"
         style={{
@@ -158,14 +142,9 @@ export function CheatSheetForm() {
         style={{
           backgroundColor: COLORS.primary,
           boxShadow: `0 4px 20px ${COLORS.primary}40`,
-          clipPath:
-            "polygon(0 0, 100% 0, 100% 85%, 96% 100%, 0 100%)",
+          clipPath: "polygon(0 0, 100% 0, 100% 85%, 96% 100%, 0 100%)",
         }}
-        disabled={
-          !formData.userType ||
-          !formData.grade ||
-          !formData.email
-        }
+        disabled={!formData.userType || !formData.grade || !formData.email}
       >
         <Download className="relative z-10 h-4 w-4" />
         <span className="relative z-10">Download Now</span>

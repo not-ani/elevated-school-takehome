@@ -43,12 +43,16 @@ const CompanionContext = React.createContext<CompanionContextValue | null>(
 );
 
 export function CompanionProvider({ children }: { children: React.ReactNode }) {
-  const [activeThreadId, setActiveThreadId] = React.useState<string | undefined>();
-  const [runningThreadId, setRunningThreadId] = React.useState<string | undefined>();
+  const [activeThreadId, setActiveThreadId] = React.useState<
+    string | undefined
+  >();
+  const [runningThreadId, setRunningThreadId] = React.useState<
+    string | undefined
+  >();
   const [lastCompletedThreadId, setLastCompletedThreadId] = React.useState<
     string | undefined
   >();
-  
+
   const { cacheMessages, getCachedMessages } = useThreadCache();
 
   const pathname = usePathname();
@@ -88,7 +92,13 @@ export function CompanionProvider({ children }: { children: React.ReactNode }) {
     id: "dashboard-companion-runtime",
     transport: new DefaultChatTransport({
       api: "/api/ai",
-      prepareSendMessagesRequest: ({ id, messages, body, trigger, messageId }) => {
+      prepareSendMessagesRequest: ({
+        id,
+        messages,
+        body,
+        trigger,
+        messageId,
+      }) => {
         const lastMessage = messages[messages.length - 1];
 
         if (!lastMessage) {
@@ -122,7 +132,10 @@ export function CompanionProvider({ children }: { children: React.ReactNode }) {
       setRunningThreadId(undefined);
       if (!completedThreadId) return;
       setLastCompletedThreadId(completedThreadId);
-      handleCompletionToast(completedThreadId, "AI companion finished this thread.");
+      handleCompletionToast(
+        completedThreadId,
+        "AI companion finished this thread.",
+      );
     },
     onError: () => {
       const failedThreadId = runningThreadIdRef.current;
@@ -166,7 +179,14 @@ export function CompanionProvider({ children }: { children: React.ReactNode }) {
       const cachedMessages = getCachedMessages(threadId);
       setMessages(cachedMessages ?? []);
     },
-    [activeThreadId, isRunning, messages, setMessages, cacheMessages, getCachedMessages],
+    [
+      activeThreadId,
+      isRunning,
+      messages,
+      setMessages,
+      cacheMessages,
+      getCachedMessages,
+    ],
   );
 
   const startNewThread = React.useCallback(() => {

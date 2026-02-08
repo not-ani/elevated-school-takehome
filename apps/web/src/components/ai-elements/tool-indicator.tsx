@@ -18,7 +18,11 @@ type ToolIndicatorProps = {
   isError: boolean;
 };
 
-export function ToolIndicator({ toolName, isComplete, isError }: ToolIndicatorProps) {
+export function ToolIndicator({
+  toolName,
+  isComplete,
+  isError,
+}: ToolIndicatorProps) {
   const label = toolLabels[toolName] || "Looking up data";
 
   return (

@@ -2,7 +2,10 @@ import type { ConvexHttpClient } from "convex/browser";
 import type { UIMessage } from "ai";
 import { api } from "@elevated-school/backend/convex/_generated/api";
 import type { Id } from "@elevated-school/backend/convex/_generated/dataModel";
-import { extractTextContent, sanitizeMessageForPersistence } from "./message-sanitization";
+import {
+  extractTextContent,
+  sanitizeMessageForPersistence,
+} from "./message-sanitization";
 
 export async function persistUserMessage(
   convexClient: ConvexHttpClient,
@@ -23,7 +26,9 @@ export async function persistUserMessage(
         threadId,
         role: "user",
         content: textContent,
-        metadata: persistedUserMessage ? { uiMessage: persistedUserMessage } : undefined,
+        metadata: persistedUserMessage
+          ? { uiMessage: persistedUserMessage }
+          : undefined,
       })
       .catch((error) => console.error("Save user message failed:", error));
   }
@@ -43,7 +48,8 @@ export async function persistAssistantMessage(
   if (!textContent) return;
 
   try {
-    const persistedAssistantMessage = sanitizeMessageForPersistence(lastMessage);
+    const persistedAssistantMessage =
+      sanitizeMessageForPersistence(lastMessage);
     await convexClient.mutation(api.messages.create, {
       threadId,
       role: "assistant",

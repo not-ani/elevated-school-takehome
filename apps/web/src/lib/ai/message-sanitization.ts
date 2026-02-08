@@ -41,7 +41,10 @@ export function sanitizeMessages(messages: Array<UIMessage>) {
     .map((message) => {
       const textParts = message.parts
         .filter((part) => part.type === "text")
-        .map((part) => ({ type: "text" as const, text: truncateText(part.text) }));
+        .map((part) => ({
+          type: "text" as const,
+          text: truncateText(part.text),
+        }));
 
       if (textParts.length === 0) {
         return null;
@@ -214,13 +217,21 @@ function sanitizeUnknown(data: unknown, currentDepth: number): unknown {
   if (currentDepth >= MAX_SANITIZATION_DEPTH) return "[truncated]";
 
   if (Array.isArray(data)) {
-    return data.slice(0, MAX_ARRAY_LENGTH).map((entry) => sanitizeUnknown(entry, currentDepth + 1));
+    return data
+      .slice(0, MAX_ARRAY_LENGTH)
+      .map((entry) => sanitizeUnknown(entry, currentDepth + 1));
   }
 
   if (typeof data === "object") {
-    const objectEntries = Object.entries(data as Record<string, unknown>).slice(0, MAX_OBJECT_ENTRIES);
+    const objectEntries = Object.entries(data as Record<string, unknown>).slice(
+      0,
+      MAX_OBJECT_ENTRIES,
+    );
     return Object.fromEntries(
-      objectEntries.map(([key, value]) => [key, sanitizeUnknown(value, currentDepth + 1)]),
+      objectEntries.map(([key, value]) => [
+        key,
+        sanitizeUnknown(value, currentDepth + 1),
+      ]),
     );
   }
 

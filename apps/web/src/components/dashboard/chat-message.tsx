@@ -1,9 +1,16 @@
 "use client";
 
 import { isToolUIPart, type UIMessage } from "ai";
-import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
 import { ToolIndicator } from "@/components/ai-elements/tool-indicator";
-import { PythonCodeBlock, type PythonAnalysisOutput } from "@/components/ai-elements/python-code-block";
+import {
+  PythonCodeBlock,
+  type PythonAnalysisOutput,
+} from "@/components/ai-elements/python-code-block";
 
 type ChatMessageProps = {
   message: UIMessage;
@@ -56,7 +63,10 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
                 ? normalizePythonAnalysisOutput(part.output)
                 : undefined;
 
-            if (toolName === "runPythonAnalysis" && (toolInput || normalizedOutput)) {
+            if (
+              toolName === "runPythonAnalysis" &&
+              (toolInput || normalizedOutput)
+            ) {
               const pythonInput = (toolInput ?? {}) as {
                 code?: string;
                 note?: string;
@@ -122,11 +132,17 @@ function normalizePythonAnalysisOutput(
     : undefined;
 
   return {
-    summary: typeof outputObject.summary === "string" ? outputObject.summary : undefined,
-    stdout: typeof outputObject.stdout === "string" ? outputObject.stdout : undefined,
-    stderr: typeof outputObject.stderr === "string" ? outputObject.stderr : undefined,
+    summary:
+      typeof outputObject.summary === "string"
+        ? outputObject.summary
+        : undefined,
+    stdout:
+      typeof outputObject.stdout === "string" ? outputObject.stdout : undefined,
+    stderr:
+      typeof outputObject.stderr === "string" ? outputObject.stderr : undefined,
     filesGenerated,
     charts,
-    error: typeof outputObject.error === "string" ? outputObject.error : undefined,
+    error:
+      typeof outputObject.error === "string" ? outputObject.error : undefined,
   };
 }

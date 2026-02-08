@@ -108,7 +108,10 @@ function sanitizePersistedPart(messagePart: unknown) {
     };
   }
 
-  if (typeof partObject.type !== "string" || !partObject.type.startsWith("tool-")) {
+  if (
+    typeof partObject.type !== "string" ||
+    !partObject.type.startsWith("tool-")
+  ) {
     return null;
   }
 
@@ -147,7 +150,10 @@ function sanitizePersistedPart(messagePart: unknown) {
   return sanitizedToolPart;
 }
 
-function sanitizePersistedUnknown(data: unknown, currentDepth: number): unknown {
+function sanitizePersistedUnknown(
+  data: unknown,
+  currentDepth: number,
+): unknown {
   if (data === null || data === undefined) return data;
   if (typeof data === "number" || typeof data === "boolean") return data;
 
@@ -172,9 +178,15 @@ function sanitizePersistedUnknown(data: unknown, currentDepth: number): unknown 
   }
 
   if (typeof data === "object") {
-    const objectEntries = Object.entries(data as Record<string, unknown>).slice(0, MAX_OBJECT_ENTRIES);
+    const objectEntries = Object.entries(data as Record<string, unknown>).slice(
+      0,
+      MAX_OBJECT_ENTRIES,
+    );
     const sanitizedEntries = objectEntries
-      .map(([key, value]) => [key, sanitizePersistedUnknown(value, currentDepth + 1)] as const)
+      .map(
+        ([key, value]) =>
+          [key, sanitizePersistedUnknown(value, currentDepth + 1)] as const,
+      )
       .filter(([, value]) => value !== undefined);
 
     return Object.fromEntries(sanitizedEntries);

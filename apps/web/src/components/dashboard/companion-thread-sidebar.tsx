@@ -93,7 +93,8 @@ export function CompanionThreadSidebar({
           <div className="space-y-1.5">
             {threads.results.map((thread) => {
               const isActive = thread._id === activeThreadId;
-              const isThreadRunning = isRunning && runningThreadId === thread._id;
+              const isThreadRunning =
+                isRunning && runningThreadId === thread._id;
 
               return (
                 <div
@@ -129,7 +130,9 @@ export function CompanionThreadSidebar({
                       <button
                         type="button"
                         className="text-muted-foreground hover:text-foreground rounded p-1"
-                        onClick={() => void handleRename(thread._id, thread.title)}
+                        onClick={() =>
+                          void handleRename(thread._id, thread.title)
+                        }
                         aria-label="Rename thread"
                         disabled={isRunning}
                       >

@@ -5,7 +5,6 @@ import { CheatSheetBenefits } from "./cheat-sheet-benefits";
 import { CheatSheetForm } from "./cheat-sheet-form";
 
 export function CheatSheetSection() {
-
   return (
     <section
       className="relative overflow-hidden"
