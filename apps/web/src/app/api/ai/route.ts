@@ -5,37 +5,16 @@ import { createCompanionAgent } from "@/lib/ai/agents/companion-agent";
 import { getConvexUrl } from "@/lib/ai/env";
 import { buildCompanionSystemPrompt } from "@/lib/ai/companion-system-prompt";
 import { api } from "@elevated-school/backend/convex/_generated/api";
-import type { Id } from "@elevated-school/backend/convex/_generated/dataModel";
-
-type FilterState = {
-  preset: "7d" | "30d" | "90d" | "ytd" | "custom";
-  from: string;
-  to: string;
-  turnaround: string;
-  status: string;
-  acquisition: string;
-  draft: string;
-  customerType: string;
-};
-
-type PageContext = {
-  title: string;
-  path: string;
-};
-
-const DEFAULT_FILTERS: FilterState = {
-  preset: "30d",
-  from: "",
-  to: "",
-  turnaround: "All",
-  status: "All",
-  acquisition: "All",
-  draft: "All",
-  customerType: "All",
-};
-
-const MAX_CONTEXT_MESSAGES = 24;
-const MAX_MESSAGE_TEXT_CHARS = 4_000;
+import { buildContextMessages } from "@/lib/ai/context-builder";
+import { persistUserMessage, persistAssistantMessage } from "@/lib/ai/persistence";
+import {
+  normalizeFilters,
+  normalizePage,
+  getIncomingMessages,
+  type FilterState,
+  type PageContext,
+} from "@/lib/ai/request-normalization";
+import { resolveValidThreadId } from "@/lib/ai/thread-resolution";
 
 export const maxDuration = 60;
 
@@ -95,46 +74,16 @@ export async function POST(req: NextRequest) {
     const instructions = buildCompanionSystemPrompt(data, filters, page);
     const agent = createCompanionAgent(instructions);
 
-    // Persistence: Save User Message
-    if (threadId && incomingMessages.length > 0) {
-      const lastUserMessage = incomingMessages
-        .filter((m) => m.role === "user")
-        .pop();
-      const textContent = extractTextContent(lastUserMessage);
-
-      if (textContent) {
-        await convexClient
-          .mutation(api.messages.create, {
-            threadId,
-            role: "user",
-            content: textContent,
-          })
-          .catch((e) => console.error("Save user message failed:", e));
-      }
+    if (threadId) {
+      await persistUserMessage(convexClient, threadId, incomingMessages);
     }
 
     return createAgentUIStreamResponse({
       agent,
       uiMessages: contextMessages,
       onFinish: async ({ messages }) => {
-        if (threadId && messages.length > 0) {
-          const lastMessage = messages[messages.length - 1];
-          if (lastMessage.role === "assistant") {
-            const textContent = extractTextContent(lastMessage);
-
-            if (textContent) {
-              try {
-                await convexClient.mutation(api.messages.create, {
-                  threadId,
-                  role: "assistant",
-                  content: textContent,
-                });
-                await convexClient.mutation(api.threads.touch, { threadId });
-              } catch (e) {
-                console.error("Save assistant message failed:", e);
-              }
-            }
-          }
+        if (threadId) {
+          await persistAssistantMessage(convexClient, threadId, messages);
         }
       },
     });
@@ -144,121 +93,3 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function normalizeFilters(input?: Partial<FilterState>): FilterState {
-  if (!input) return DEFAULT_FILTERS;
-  const isPreset = (v: string): v is FilterState["preset"] =>
-    ["7d", "30d", "90d", "ytd", "custom"].includes(v);
-
-  return {
-    preset:
-      typeof input.preset === "string" && isPreset(input.preset)
-        ? input.preset
-        : DEFAULT_FILTERS.preset,
-    from: input.from ?? DEFAULT_FILTERS.from,
-    to: input.to ?? DEFAULT_FILTERS.to,
-    turnaround: input.turnaround ?? DEFAULT_FILTERS.turnaround,
-    status: input.status ?? DEFAULT_FILTERS.status,
-    acquisition: input.acquisition ?? DEFAULT_FILTERS.acquisition,
-    draft: input.draft ?? DEFAULT_FILTERS.draft,
-    customerType: input.customerType ?? DEFAULT_FILTERS.customerType,
-  };
-}
-
-function normalizePage(input?: Partial<PageContext>): PageContext {
-  return {
-    title: input?.title ?? "Dashboard",
-    path: input?.path ?? "/",
-  };
-}
-
-async function resolveValidThreadId(
-  convexClient: ConvexHttpClient,
-  threadId: string | undefined,
-) {
-  if (!threadId) return undefined;
-
-  try {
-    const thread = await convexClient.query(api.threads.get, {
-      threadId: threadId as Id<"threads">,
-    });
-    if (!thread) return undefined;
-    return threadId as Id<"threads">;
-  } catch {
-    return undefined;
-  }
-}
-
-function getIncomingMessages(body: {
-  messages?: Array<UIMessage>;
-  message?: UIMessage;
-}) {
-  if (Array.isArray(body.messages) && body.messages.length > 0) {
-    return body.messages;
-  }
-
-  if (body.message) {
-    return [body.message];
-  }
-
-  return [];
-}
-
-async function buildContextMessages(
-  convexClient: ConvexHttpClient,
-  threadId: Id<"threads"> | undefined,
-  incomingMessages: Array<UIMessage>,
-) {
-  const sanitizedIncoming = sanitizeMessages(incomingMessages);
-
-  if (!threadId) {
-    return sanitizedIncoming.slice(-MAX_CONTEXT_MESSAGES);
-  }
-
-  const history = await convexClient.query(api.messages.listByThread, { threadId });
-  const historyMessages: UIMessage[] = history.map((message) => ({
-    id: message._id,
-    role: message.role,
-    parts: [{ type: "text", text: truncateText(message.content) }],
-  }));
-
-  const latestIncoming = sanitizedIncoming.slice(-1);
-  return [...historyMessages, ...latestIncoming].slice(-MAX_CONTEXT_MESSAGES);
-}
-
-function sanitizeMessages(messages: Array<UIMessage>) {
-  return messages
-    .map((message) => {
-      const textParts = message.parts
-        .filter((part) => part.type === "text")
-        .map((part) => ({ type: "text" as const, text: truncateText(part.text) }));
-
-      if (textParts.length === 0) {
-        return null;
-      }
-
-      const sanitizedMessage: UIMessage = {
-        id: message.id,
-        role: message.role,
-        parts: textParts as UIMessage["parts"],
-      };
-
-      return sanitizedMessage;
-    })
-    .filter((message): message is UIMessage => message !== null);
-}
-
-function extractTextContent(message: UIMessage | undefined) {
-  if (!message) return undefined;
-  const text = message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("\n")
-    .trim();
-
-  return text ? truncateText(text) : undefined;
-}
-
-function truncateText(value: string) {
-  if (value.length <= MAX_MESSAGE_TEXT_CHARS) return value;
-  return `${value.slice(0, MAX_MESSAGE_TEXT_CHARS)}\n...[truncated]`;
-}

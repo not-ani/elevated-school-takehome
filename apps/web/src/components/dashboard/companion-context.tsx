@@ -9,6 +9,9 @@ import { toast } from "sonner";
 import { api } from "@/lib/convex";
 import type { Id } from "@/lib/convex";
 import type { FilterState } from "./filters/filter-bar";
+import { hydratePersistedMessage } from "@/lib/ai/message-hydration";
+import { sanitizeOutgoingMessage } from "@/lib/ai/message-sanitization-client";
+import { useThreadCache } from "@/hooks/use-thread-cache";
 
 type CompanionPageContext = {
   title: string;
@@ -45,6 +48,8 @@ export function CompanionProvider({ children }: { children: React.ReactNode }) {
   const [lastCompletedThreadId, setLastCompletedThreadId] = React.useState<
     string | undefined
   >();
+  
+  const { cacheMessages, getCachedMessages } = useThreadCache();
 
   const pathname = usePathname();
   const router = useRouter();
@@ -146,17 +151,34 @@ export function CompanionProvider({ children }: { children: React.ReactNode }) {
   const selectThread = React.useCallback(
     (threadId: string | undefined) => {
       if (isRunning) return;
+
+      if (activeThreadId && messages.length > 0) {
+        cacheMessages(activeThreadId, messages);
+      }
+
       setActiveThreadId(threadId);
-      setMessages([]);
+
+      if (!threadId) {
+        setMessages([]);
+        return;
+      }
+
+      const cachedMessages = getCachedMessages(threadId);
+      setMessages(cachedMessages ?? []);
     },
-    [isRunning, setMessages],
+    [activeThreadId, isRunning, messages, setMessages, cacheMessages, getCachedMessages],
   );
 
   const startNewThread = React.useCallback(() => {
     if (isRunning) return;
+
+    if (activeThreadId && messages.length > 0) {
+      cacheMessages(activeThreadId, messages);
+    }
+
     setActiveThreadId(undefined);
     setMessages([]);
-  }, [isRunning, setMessages]);
+  }, [activeThreadId, isRunning, messages, setMessages, cacheMessages]);
 
   const sendMessage = React.useCallback(
     async ({ text, filters, page }: SendCompanionMessageInput) => {
@@ -192,15 +214,20 @@ export function CompanionProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!activeThreadId) return;
+    if (messages.length === 0) return;
+
+    cacheMessages(activeThreadId, messages);
+  }, [activeThreadId, messages, cacheMessages]);
+
+  React.useEffect(() => {
+    if (!activeThreadId) return;
     if (!persistedMessages) return;
     if (isRunning || runningThreadId) return;
     if (messages.length > 0) return;
 
-    const hydratedMessages: UIMessage[] = persistedMessages.map((message) => ({
-      id: message._id,
-      role: message.role,
-      parts: [{ type: "text", text: message.content }],
-    }));
+    const hydratedMessages: UIMessage[] = persistedMessages.map((message) =>
+      hydratePersistedMessage(message),
+    );
 
     setMessages(hydratedMessages);
   }, [
@@ -259,18 +286,4 @@ export function useCompanion() {
 // Optional hook that doesn't throw if outside provider
 export function useCompanionOptional() {
   return React.useContext(CompanionContext);
-}
-
-function sanitizeOutgoingMessage(message: UIMessage) {
-  const textParts = message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => ({ type: "text" as const, text: part.text.slice(0, 4000) }));
-
-  if (textParts.length === 0) return null;
-
-  return {
-    id: message.id,
-    role: message.role,
-    parts: textParts as UIMessage["parts"],
-  };
 }

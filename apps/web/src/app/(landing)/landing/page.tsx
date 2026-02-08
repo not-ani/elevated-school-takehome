@@ -1,4 +1,5 @@
 import { HeroSection } from "@/components/landing/hero";
+import { CheatSheetSection } from "@/components/landing/cheat-sheet";
 import { StatsSection } from "@/components/landing/stats";
 import { ServicesSection } from "@/components/landing/services";
 import { DifferenceSection } from "@/components/landing/difference";
@@ -9,6 +10,7 @@ export default function LandingPage() {
   return (
     <div className="font-body min-h-screen overflow-x-hidden bg-[#FDF8F3]">
       <HeroSection />
+      <CheatSheetSection />
       <StatsSection />
       <ServicesSection />
       <DifferenceSection />

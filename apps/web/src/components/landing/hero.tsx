@@ -3,88 +3,36 @@
 import { useState, useEffect } from "react";
 import { COLORS } from "./constants";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
+import { HeroBackground } from "./hero-background";
+import { HeroGeometricAccents } from "./hero-geometric-accents";
+import { HeroSpinningText } from "./hero-spinning-text";
+import { HeroAnimations } from "./hero-animations";
+
+const headlineVariants = [
+  "Get into your dream school?",
+  "Win writing awards?",
+  "Land elite summer programs?",
+  "Study abroad?",
+  "Get into top high schools?",
+  "Build a winning portfolio?",
+];
 
 export function HeroSection() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeHeadlineIndex, setActiveHeadlineIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const spinningTexts = [
-    "Get into your dream school?",
-    "Win writing awards?",
-    "Land elite summer programs?",
-    "Study abroad?",
-    "Get into top high schools?",
-    "Build a winning portfolio?",
-  ];
 
   useEffect(() => {
     setIsVisible(true);
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % spinningTexts.length);
+      setActiveHeadlineIndex((prev) => (prev + 1) % headlineVariants.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 96px), 0 100%)",
-          overflow: "hidden",
-        }}
-      >
-        <Image
-          src="/bg-hero.avif"
-          alt="Campus Background"
-          className="absolute object-cover"
-          style={{
-            width: "150%",
-            height: "90%",
-            objectPosition: "85% center",
-            top: "10%",
-            left: "-0.2%",
-          }}
-          width={1200}
-          height={800}
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-[#101D45]/90 via-[#101D45]/70 to-transparent" />
-
-        {/* Subtle animated gradient overlay */}
-        <div className="absolute inset-0 opacity-30">
-          <div
-            className="animate-float absolute top-20 left-10 h-96 w-96 rounded-full"
-            style={{
-              background: `radial-gradient(circle, ${COLORS.primary}40 0%, transparent 70%)`,
-              animation: "float 8s ease-in-out infinite",
-            }}
-          />
-          <div
-            className="animate-float-delayed absolute right-20 bottom-20 h-80 w-80 rounded-full"
-            style={{
-              background: `radial-gradient(circle, ${COLORS.accent}30 0%, transparent 70%)`,
-              animation: "float 10s ease-in-out infinite reverse",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Geometric Accents */}
-      <div
-        className="absolute top-20 right-0 h-48 w-48 opacity-10"
-        style={{
-          backgroundColor: COLORS.accent,
-          clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-        }}
-      />
-      <div
-        className="absolute bottom-40 left-20 h-32 w-32 opacity-5"
-        style={{
-          border: `2px solid ${COLORS.white}`,
-          transform: "rotate(45deg)",
-        }}
-      />
+    <section className="relative flex min-h-[92vh] items-center overflow-hidden">
+      <HeroBackground />
+      <HeroGeometricAccents />
 
       {/* Content */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-32 sm:px-6 lg:px-8">
@@ -120,34 +68,10 @@ export function HeroSection() {
             Do you want to:
           </h1>
 
-          {/* Spinning Text Container */}
-          <div
-            className={`mb-2 h-14 transform overflow-hidden transition-all duration-700 sm:h-16 lg:h-20 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
-            style={{ transitionDelay: "300ms" }}
-          >
-            <div className="relative h-full w-full">
-              {spinningTexts.map((text, index) => (
-                <div
-                  key={index}
-                  className={`font-display absolute top-0 left-0 w-full text-4xl transition-all duration-700 sm:text-5xl lg:text-6xl ${
-                    index === currentIndex
-                      ? "translate-y-0 opacity-100"
-                      : index ===
-                          (currentIndex - 1 + spinningTexts.length) %
-                            spinningTexts.length
-                        ? "-translate-y-full opacity-0"
-                        : "translate-y-full opacity-0"
-                  }`}
-                  style={{
-                    color: COLORS.primary,
-                    textShadow: "0 0 40px rgba(254, 67, 0, 0.3)",
-                  }}
-                >
-                  <span className="inline-flex items-center gap-2">{text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <HeroSpinningText
+            activeHeadlineIndex={activeHeadlineIndex}
+            isVisible={isVisible}
+          />
 
           {/* Subtext */}
           <p
@@ -229,19 +153,12 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Bottom Wave */}
       <div
-        className="absolute right-0 bottom-0 left-0 z-10 h-24 bg-[#FDF8F3]"
+        className="absolute right-0 bottom-0 left-0 z-10 h-12 bg-[#FDF8F3]"
         style={{ clipPath: "polygon(0 100%, 100% 100%, 0 0, 0 100%)" }}
       />
 
-      {/* Animation Keyframes */}
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -30px) scale(1.1); }
-        }
-      `}</style>
+      <HeroAnimations />
     </section>
   );
 }
