@@ -10,11 +10,11 @@ NOTE: You I've added README.md files throughout the project to document the code
 
 ### The Problem with Monolithic Approaches
 
-Early in development, I had a single massive query that fetched all dashboard data at once—customers, revenue, operations, quality metrics, everything. The frontend then picked what it needed. This worked fine with 500 rows, but it's a scaling dead-end: every page loads data it doesn't use, payloads balloon, and caching becomes nearly impossible.
+Early in development, I had a single massive query that fetched all dashboard data at once: customers, revenue, operations, quality metrics, everything. The frontend then picked what it needed. This worked fine with smaller datasets, but I realized that this approach would not scale: every page loads data it doesn't use, payloads balloon, and caching becomes nearly impossible.
 
 ### Route-Scoped Queries
 
-I restructured around a simple principle: **each page should fetch only what it renders**.
+I restructured around a simple principle: each page should fetch only what it renders.
 
 ```
 packages/backend/convex/
@@ -26,7 +26,7 @@ packages/backend/convex/
 └── dashboardShared.ts        # Common utilities
 ```
 
-When a user visits `/dashboard/customers`, the app calls `getCustomers`—not a catch-all `getDashboard` function. This keeps payloads small (50-100KB vs. ~500KB), improves cache hit rates, and lets me optimize each query independently.
+When a user visits `/dashboard/customers`, the app calls `getCustomers` (not a catch-all `getDashboard` function). This keeps payloads small, improves cache hit rates, and lets me optimize each query independently.
 
 The shared module (`dashboardShared.ts`) contains common logic like date range parsing and filter validation. This avoids duplication without coupling unrelated features.
 
@@ -59,13 +59,13 @@ elevated-school/
 └── packages/env/              # Environment validation
 ```
 
-The main benefit here is **type safety across boundaries**. When I define a schema in Convex, TypeScript types flow automatically to the frontend. If I rename a field in the database schema and forget to update a component, the build fails—not the user's session.
+The main benefit here is type safety across boundaries. When I define a schema in Convex, TypeScript types flow automatically to the frontend. If I rename a field in the database schema and forget to update a component, the build fails (not the user's session).
 
-## 2. Effective UI Design
+## 2. Challenges faced in development
 
-### The Core Problem: Users Don't Wait
+### Filtering
 
-The trickiest UI challenge in dashboards is filter changes. A user selects a new date range, and suddenly the data they were looking at vanishes while the new query runs. This creates a jarring experience—especially on slower connections or with larger datasets.
+The trickiest UI challenge in dashboards is filter changes. A user selects a new date range (or any new filter), and suddenly the data they were looking at vanishes while the new query runs. This creates a jarring experience, especially on slower connections or with larger datasets.
 
 ### Stable Data During Transitions
 
@@ -84,7 +84,7 @@ function useStableQueryData<T>(liveData: T | undefined) {
 }
 ```
 
-When filters change, the previous data stays visible until new results arrive. A subtle loading indicator shows the update is in progress, but the user never sees an empty chart. This mirrors how applications like Notion and Linear handle data transitions—the old content remains until there's something better to show.
+When filters change, the previous data stays visible until new results arrive. A subtle loading indicator shows the update is in progress, but the user never sees an empty chart. The old content remains until the new data arrives.
 
 ### Loading States That Match Layout
 
@@ -102,7 +102,7 @@ function DashboardPageSkeleton() {
 }
 ```
 
-This prevents layout shift—the page doesn't jump around as content loads. Users see the structure immediately, which makes the wait feel shorter even when it isn't.
+This prevents layout shift: the page doesn't jump around as content loads. Users see the structure immediately, which makes the wait feel shorter even when it isn't.
 
 ### Error Recovery
 
@@ -121,15 +121,15 @@ onError: () => {
 };
 ```
 
-The user gets context (what failed), guidance (how to fix it), and a direct action (one-click retry). This matters because errors will happen—the question is whether users can recover without confusion.
+The user gets context (what failed), guidance (how to fix it), and a direct action (one-click retry). This matters because errors will happen: the question is whether users can recover without confusion.
 
 ### Anticipating Edge Cases
 
 A few specific behaviors I accounted for:
 
-- **Rapid filter changes**: Using `useDeferredValue` means the UI doesn't queue up every intermediate state. If a user clicks through five filter options quickly, only the final state triggers a full render.
-- **Empty states**: When queries return no results, the UI shows an appropriate message rather than blank space.
-- **Mobile breakpoints**: The grid layouts adapt (`md:grid-cols-2 lg:grid-cols-4`), and interactive elements remain usable on touch screens.
+- Rapid filter changes: Using `useDeferredValue` means the UI doesn't queue up every intermediate state. If a user clicks through five filter options quickly, only the final state triggers a full render.
+- Empty states: When queries return no results, the UI shows an appropriate message rather than blank space.
+- Mobile breakpoints: The grid layouts adapt (`md:grid-cols-2 lg:grid-cols-4`), and interactive elements remain usable on touch screens.
 
 ---
 
@@ -137,7 +137,7 @@ A few specific behaviors I accounted for:
 
 ### Why This Matters
 
-The dataset currently has around 2,500 rows. The evaluation mentions 5,000+ rows, but I designed for 50,000+ because that's where naive approaches start falling apart. The key insight: **query time should be roughly constant regardless of table size**—which means using indexes properly.
+The dataset is currently relatively small. I tried to design the application with the intent to scale it to over 50,000 rows. This meant achieving one primary goal: query time should be roughly constant regardless of table size. To do so I needed to use indexes properly.
 
 ### Index Strategy
 
@@ -168,7 +168,7 @@ ctx.db.query("essays").withIndex("by_status_turnaround_and_submitted_at", (q) =>
 );
 ```
 
-Without the index, this query scans all 50,000 rows. With it, the database reads only matching rows—potentially a 100x improvement.
+Without the index, this query scans all 50,000 rows. With it, the database reads only matching rows (potentially a 100x improvement).
 
 ### Denormalization
 
@@ -191,7 +191,7 @@ This is a tradeoff: slightly more storage and a backfill migration, but queries 
 
 ### Pagination for Large Lists
 
-The operations page shows individual essays—potentially thousands. Loading all of them at once would be slow and memory-intensive. Instead, I use cursor-based pagination:
+The operations page shows individual essays (potentially thousands). Loading all of them at once would be slow and memory-intensive. Instead, I use cursor-based pagination:
 
 ```typescript
 const unassigned = usePaginatedQuery(
@@ -208,7 +208,7 @@ The initial load fetches 20 items. The user sees results in under 100ms. They ca
 
 ### Server-Side Aggregation
 
-Charts need aggregated data—totals, averages, distributions. I compute these on the server rather than sending raw rows to the client:
+Charts need aggregated data: totals, averages, distributions. I compute these on the server rather than sending raw rows to the client:
 
 ```typescript
 // Server: compute once
@@ -221,20 +221,22 @@ export async function computeKPIs(essays: Essay[]): Promise<KPIs> {
 }
 ```
 
-The client receives `{ totalRevenue: 125000, activeCustomers: 847 }`—not an array of 5,000 objects it has to process. This keeps payloads small and keeps expensive computation off user devices.
+The client receives `{ totalRevenue: 125000, activeCustomers: 847 }` (not an array of 5,000 objects it has to process). This keeps payloads small and keeps expensive computation off user devices.
 
 ### Scaling Projections
 
-The current architecture should handle 50,000 rows without modification. Beyond that, I'd add pre-computed aggregation tables and background refresh jobs—but that's premature optimization for the current scale.
+The current architecture should handle 50,000 rows without modification. Beyond that, I'd add pre-computed aggregation tables and background refresh jobs (but that's premature optimization for the current scale).
 
 ## Technical Stack
 
-- **Frontend**: Next.js 16, React 19, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui
-- **Backend**: Convex (real-time database with automatic subscriptions)
-- **AI**: Vercel AI SDK with Google Gemini
-- **Build**: Turborepo, Bun
+- Frontend: Next.js 16, React 19, TypeScript
+- Styling: Tailwind CSS, shadcn/ui
+- Backend: Convex (real-time database with automatic subscriptions)
+- AI: Vercel AI SDK with Google Gemini
+- Build: Turborepo, Bun
 
 ## Summary
 
 Each decision has tradeoffs, but they're calibrated for a read-heavy analytics application that needs to scale beyond current data volumes while remaining responsive to real user behavior.
+
+I've added README.md files throughout the project to document the codebase, please check them out to get a more in-depth explanation of each section of the application.
